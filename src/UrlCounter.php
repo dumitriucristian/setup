@@ -5,7 +5,13 @@ namespace Threecolts\Phptest;
 class UrlCounter
 {
 
+
+    public function __construct(
+        public array $urls
+    ){}
     
+
+
     /**
      * This function counts how many unique normalized valid URLs were passed to the function
      *
@@ -41,12 +47,12 @@ class UrlCounter
      */
 
     /* @var $urls : string[] */
-    public function countUniqueUrls( $urls)
+    public function countUniqueUrls()
     {
         $normalizedUrls = [];
-        $cleanQuery = $this->cleanUpQuery($urls);
+        $cleanQuery = $this->cleanUpQuery($this->urls);
         
-        foreach($urls as $url) {
+        foreach($this->urls as $url) {
             
            $url =  $this->removeFinalSlash($url);
            $url =  $this->removeFinalQuestion($url);
@@ -80,10 +86,10 @@ class UrlCounter
         return  rtrim($url,'?');
     }
 
-    private function cleanUpQuery($urls)
+    private function cleanUpQuery()
     {
         $params = [];
-        foreach($urls as $url ) {
+        foreach($this->urls as $url ) {
             
             $params[] = explode('&',parse_url($url, PHP_URL_QUERY));
 
@@ -99,6 +105,21 @@ class UrlCounter
         return array_unique($finalParams);
     }
 
+
+    public function getDistinctUrls() 
+    {
+        $distinct = [];
+        foreach($this->urls as $url) {
+            $base = parse_url($url, PHP_URL_SCHEME) . '://'. parse_url($url, PHP_URL_HOST);
+            $query = parse_url($url, PHP_URL_QUERY);
+            if(!empty($query)) {
+                $distinct[$base][] = $query;
+            }
+          
+        }
+       
+        return $distinct;
+    }
 
     /**
      * This function counts how many unique normalized valid URLs were passed to the function per top level domain
